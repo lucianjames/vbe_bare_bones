@@ -1,2 +1,5 @@
-*.o
-*.elf
+obj/
+bin/
+isoroot/
+serial.log
+*.iso
