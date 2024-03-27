@@ -14,11 +14,23 @@ align 4
     ; aout kludge (unused)
     dd 0,0,0,0,0
 
-    ; Video mode (currently not doing anyyyy video at all, kernel still works with all these at 0 right now)
+    ; VIDEO MODE
+    ; 3.1.4 The graphics fields of Multiboot header
+    ; All of the graphics fields are enabled by flag bit 2. They specify the preferred graphics mode. Note that that is only a recommended mode by the OS image. Boot loader may choose a different mode if it sees fit.
+    ; The meaning of each is as follows:
+    ;    mode_type:
+    ;      Contains ‘0’ for linear graphics mode or ‘1’ for EGA-standard text mode. Everything else is reserved for future expansion. Note that the boot loader may set a text mode even if this field contains ‘0’, or set a video mode even if this field contains ‘1’.
+    ;    width:
+    ;      Contains the number of the columns. This is specified in pixels in a graphics mode, and in characters in a text mode. The value zero indicates that the OS image has no preference.
+    ;    height:
+    ;      Contains the number of the lines. This is specified in pixels in a graphics mode, and in characters in a text mode. The value zero indicates that the OS image has no preference.
+    ;    depth:
+    ;      Contains the number of bits per pixel in a graphics mode, and zero in a text mode. The value zero indicates that the OS image has no preference.
     dd 0    ; Mode type
     dd 0    ; Width
     dd 0    ; Height
     dd 0    ; Depth
+    ; Setting all of them to 0, lets see what QEMU/GRUB throws at us
 
 section .bss
     align 16
