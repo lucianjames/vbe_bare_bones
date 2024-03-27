@@ -7,8 +7,8 @@ i686-elf-gcc -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 nasm -felf32 boot.nas -o boot.o
 i686-elf-gcc -T linker.ld -o $OUTNAME -ffreestanding -O2 -nostdlib boot.o kernel.o -lgcc
 
-if grub-file --is-x86-multiboot $OUTNAME; then
-  echo multiboot confirmed
+if grub-file --is-x86-multiboot2 $OUTNAME; then
+  echo multiboot2 confirmed
 else
-  echo multiboot not confirmed
+  echo multiboot2 not confirmed
 fi

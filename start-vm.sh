@@ -1,1 +1,1 @@
-qemu-system-i386 -boot d -cdrom bbkernel.iso -serial file:serial.log
+qemu-system-i386 -boot d -cdrom bbkernel.iso -serial file:serial.log -monitor stdio

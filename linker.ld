@@ -11,7 +11,7 @@ SECTIONS
     /* First, the multiboot header */
     .text BLOCK(4K) : ALIGN(4K)
     {
-        *(.multiboot) /* The multiboot header must be within the first 8KiB of the file! So we make sure to place it right at the start */
+        *(.multiboot2) /* The multiboot header must be within the first 8KiB of the file! So we make sure to place it right at the start */
         *(.text)
     }
 
