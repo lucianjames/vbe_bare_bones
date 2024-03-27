@@ -11,7 +11,7 @@ align 4
     dd MBH_FLAGS
     dd MBH_CHECKSUM
 
-    ; aout kludge (unused)
+    ; unused shit fuck god knows what it is
     dd 0,0,0,0,0
 
     ; VIDEO MODE
@@ -30,7 +30,7 @@ align 4
     dd 0    ; Width
     dd 0    ; Height
     dd 0    ; Depth
-    ; Setting all of them to 0, lets see what QEMU/GRUB throws at us
+    ; Setting all of them to 0 >:) lets see what QEMU/GRUB throws at us
 
 section .bss
     align 16
@@ -48,7 +48,7 @@ _start:
     extern kernel_main
     call kernel_main
 
-    ; Kernel exited? Halt forever.
+    ; Kernel exited? Halt forever :P
 .haltloop:
     cli ; Clear all interrupts
     hlt ; Halt until next interrupt (most likely, there wont be one)
