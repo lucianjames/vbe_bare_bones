@@ -67,10 +67,8 @@ void kernel_main(unsigned long MBH2_MAGIC, unsigned long MBH2_INFO_ADDR){
 
 
     /*
-        Make everything blue! Handles any resolution and both 32 and 24 bit colour 
-        (qemu gives me 24bit col and my real hardware gives 32, so gotta handle both even just for this test code)
+        Graphics test!!! Lets draw some shit for development testing purposess!!!! 
     */
     flash_screen_graphics_test(mbi2_info_struct);
-
 
 }
