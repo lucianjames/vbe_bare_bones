@@ -18,37 +18,26 @@ multiboot_header:
 ;              +-------------------+
     dw 5;      | type = 5          |
     dw 0;      | flags             |    Leaving flags/width/height/depth at 0 so that the bootloader chooses whatever it sees fit.
-    dw 20;     | size = 20         |
-    dw 0;      | width             |
-    dw 0;      | height            |
-    dw 0;      | depth             |
+    dd 20;     | size = 20         |
+    dd 0;      | width             |
+    dd 0;      | height            |
+    dd 0;      | depth             |
 ;              +-------------------+
 ;       This tag specifies the preferred graphics mode. 
 ;       If this tag is present bootloader assumes that the payload has framebuffer support. 
 ;       Note that that is only a recommended mode by the OS image. 
 ;       Boot loader may choose a different mode if it sees fit.
 
-;    End Of Tags (These are important!)
+;    End Of Tags (These bytes are important!)
     dw   0, 0
     dd   0
 multiboot_header_end:
-
-
-; Create a stack of the given size, allowing C code to run on the system
-section .bss
-    align 16
-    stack_bottom:
-        resb 16777216;
-    stack_top:
 
 
 ; The actual code to get the kernel up and running :D
 section .text
 global _start:function
 _start:
-    ; Set ESP reg to top of stack (grows downwards on x86) in order for C code to be able to function
-    mov esp, stack_top 
-
     ; Push kernel_main args
     push ebx    ; Pointer to multiboot information structure
     push eax    ; Multiboot2 magic value
