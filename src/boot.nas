@@ -8,20 +8,27 @@ MBH2_CHECK  equ 0x100000000 - (MBH2_MAGIC + MBH2_ARCHI)
 ; Create the multiboot2 section for GRUB to find
 section .multiboot2
 multiboot_header:
+;   The base multiboot2 required header information:
     dd MBH2_MAGIC
     dd MBH2_ARCHI
     dd multiboot_header_end - multiboot_header                  ; MBH2_LEN    
     dd MBH2_CHECK - (multiboot_header_end - multiboot_header)   ; Add MBH2_LEN into MBH2_CHECK
 
-    ; Set video mode
-    dw 5 ; ?
-    dw 0 ; Flags
-    dd 20 ; ?
-    dd 0 ; Width
-    dd 0 ; Height
-    dd 32 ; Bits per pixel
+;       3.1.10 The framebuffer tag of Multiboot2 header
+;              +-------------------+
+    dw 5;      | type = 5          |
+    dw 0;      | flags             |    Leaving flags/width/height/depth at 0 so that the bootloader chooses whatever it sees fit.
+    dw 20;     | size = 20         |
+    dw 0;      | width             |
+    dw 0;      | height            |
+    dw 0;      | depth             |
+;              +-------------------+
+;       This tag specifies the preferred graphics mode. 
+;       If this tag is present bootloader assumes that the payload has framebuffer support. 
+;       Note that that is only a recommended mode by the OS image. 
+;       Boot loader may choose a different mode if it sees fit.
 
-    ; End Of Tags (These are important!)
+;    End Of Tags (These are important!)
     dw   0, 0
     dd   0
 multiboot_header_end:
