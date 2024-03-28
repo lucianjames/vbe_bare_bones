@@ -48,7 +48,7 @@ all: iso
 
 # Build the ISO then test it in a QEMU VM
 runvm: iso
-	qemu-system-i386 -boot d -cdrom $(ISONAME) -serial file:serial.log -monitor stdio
+	qemu-system-i386 -boot d -cdrom $(ISONAME) -serial file:serial.log -monitor stdio -vga std
 
 # Clean up build files
 clean:

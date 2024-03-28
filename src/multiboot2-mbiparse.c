@@ -1,7 +1,9 @@
 #include "multiboot2-mbiparse.h"
 
 
-void parse_mb2i(unsigned long addr){
+
+struct MBI2_INFO parse_mb2i(unsigned long addr){
+    struct MBI2_INFO mbi2_info_res;
     writestr_debug_serial("INFO: Attempting to parse multiboot tags\n");
     // Assume addr already validated
     struct multiboot_tag* tag = (struct multiboot_tag*)(addr+8); // Not sure what the significance of +8 is rn
@@ -71,7 +73,6 @@ void parse_mb2i(unsigned long addr){
             case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
                 {
                     writestr_debug_serial("INFO: FOUND TAG MULTIBOOT_TAG_TYPE_FRAMEBUFFER\n");
-                    unsigned i;
                     struct multiboot_tag_framebuffer* tagfb = (struct multiboot_tag_framebuffer*)tag;
                     writestr_debug_serial(" Framebuffer address: 0x");
                     writeuint_debug_serial((unsigned long)tagfb->common.framebuffer_addr, 16);
@@ -100,33 +101,7 @@ void parse_mb2i(unsigned long addr){
                     writestr_debug_serial(" Framebuffer pitch: ");
                     writeuint_debug_serial(tagfb->common.framebuffer_pitch, 10);
                     writestr_debug_serial("\n");
-
-
-                    void* fb = (void*)(unsigned long)tagfb->common.framebuffer_addr;
-
-                    /*
-                        Very earlyt test draw code, to be moved out of this function later!!!
-                        Once i make this func return a struct containing useful parsed info
-                    */
-                    if(tagfb->common.framebuffer_type != MULTIBOOT_FRAMEBUFFER_TYPE_RGB || tagfb->common.framebuffer_bpp != 32){
-                        const char* oopsies = "AAAAAAAAAAAAAAAAAA";
-                        multiboot_uint32_t* pixel = fb;
-                        for(int i=0; i<16; i++){
-                            *pixel = oopsies[i];
-                            pixel = fb + i;
-                        }
-                        break; // Only doing this to test this RIGHT NOW! So dont care about anything that isnt RGB/32bit
-                    }
-
-                    multiboot_uint32_t colour = ((1 << tagfb->framebuffer_blue_mask_size) -1) << tagfb->framebuffer_blue_field_position;
-                    
-                    for(int x=0; x<800; x++){
-                        for(int y=0; y<1280; y++){
-                            multiboot_uint32_t* pixel = fb + (tagfb->common.framebuffer_pitch*x) + (4*y);
-                            *pixel = colour;
-                        }
-                    }
-
+                    mbi2_info_res.framebufinfo = (struct multiboot_tag_framebuffer*)tag;
                     break;
                 }
             default:
@@ -136,4 +111,5 @@ void parse_mb2i(unsigned long addr){
         tag = (struct multiboot_tag *)((multiboot_uint8_t *)tag + ((tag->size + 7) & ~7));
     }
 
+    return mbi2_info_res;
 }

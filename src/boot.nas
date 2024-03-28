@@ -14,12 +14,12 @@ multiboot_header:
     dd MBH2_CHECK - (multiboot_header_end - multiboot_header)   ; Add MBH2_LEN into MBH2_CHECK
 
     ; Set video mode
-    ;dw 5 ; ?
-    ;dw 0 ; Flags
-    ;dd 20 ; ?
-    ;dd 0 ; Width
-    ;dd 0 ; Height
-    ;dd 32 ; Bits per pixel
+    dw 5 ; ?
+    dw 0 ; Flags
+    dd 20 ; ?
+    dd 0 ; Width
+    dd 0 ; Height
+    dd 32 ; Bits per pixel
 
     ; End Of Tags (These are important!)
     dw   0, 0
@@ -37,7 +37,7 @@ section .bss
 
 ; The actual code to get the kernel up and running :D
 section .text
-global _start:function ; Declate _start as a function symbol with the given symbol size
+global _start:function
 _start:
     ; Set ESP reg to top of stack (grows downwards on x86) in order for C code to be able to function
     mov esp, stack_top 
