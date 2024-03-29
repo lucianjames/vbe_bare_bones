@@ -20,6 +20,11 @@ NASMS := $(wildcard $(SRCDIR)/*.nas)
 OBJS := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS)) \
 		$(patsubst $(SRCDIR)/%.nas,$(OBJDIR)/%.o,$(NASMS))
 
+FONTNAME := zap-vga09.psf
+FONTOBJ := $(OBJDIR)/font.o
+
+
+
 # Rule for creating obj/bin/iso directories
 $(OBJDIR) $(BINDIR) $(ISODIR): 
 	mkdir -p $@
@@ -32,9 +37,13 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR) # %.o depends on %.c and objdir existin
 $(OBJDIR)/%.o: $(SRCDIR)/%.nas | $(OBJDIR)
 	nasm -felf32 $< -o $@
 
+# Rule for creating font object
+font: | $(OBJDIR)
+	objcopy -O elf32-i386 -B i386 -I binary $(FONTNAME) $(FONTOBJ)
+
 # Rule for building the ELF file.
-elf: $(OBJS) | $(BINDIR) # Requires
-	$(CC) $(LDFLAGS) -T $(LINKSCRIPT) -o $(BINDIR)/$(KBINNAME) $(OBJS)
+elf: $(OBJS) font | $(BINDIR) # Requires
+	$(CC) $(LDFLAGS) -T $(LINKSCRIPT) -o $(BINDIR)/$(KBINNAME) $(OBJS) $(FONTOBJ)
 
 # Build the iso!
 iso: elf ./grub.cfg | $(ISODIR)
@@ -55,4 +64,4 @@ clean:
 	rm -r $(OBJDIR) $(BINDIR) $(ISODIR) $(ISONAME) serial.log
 
 # Tells make that these target names are not associated with filenames
-.PHONY: elf iso all runvm clean
+.PHONY: font elf iso all runvm clean

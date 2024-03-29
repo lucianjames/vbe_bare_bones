@@ -35,7 +35,6 @@
     To pass the MBH2_MAGIC and MBH2_INFO_ADDR args, simply push ebx then eax (as long as the bootloader is behaving)
 */
 void kernel_main(unsigned long MBH2_MAGIC, unsigned long MBH2_INFO_ADDR){
-
     /*
         Set up debugging serial communications
     */
@@ -48,7 +47,7 @@ void kernel_main(unsigned long MBH2_MAGIC, unsigned long MBH2_INFO_ADDR){
         Verify we have been booted by a multiboot2 compliant bootloader
     */
     if(MBH2_MAGIC != MBH2_VALID_MAGIC){
-        writestr_debug_serial("ERR: MBH2_MAGIC IS NOT 0x36d76289\n");
+        writestr_debug_serial("ERR: MBH2_MAGIC is NOT valid\n");
     }else{
         writestr_debug_serial("INFO: Valid multiboot2 magic\n");
     }
@@ -61,14 +60,16 @@ void kernel_main(unsigned long MBH2_MAGIC, unsigned long MBH2_INFO_ADDR){
 
 
     /*
+        Dump font rendering information
+    */
+    dump_psf_info();
+
+    /*
         Boot process "done", lets say hello!
     */
     writestr_debug_serial("\n======================\nHello from the kernel!\n======================\n\n");
-
-
-    /*
-        Graphics test!!! Lets draw some shit for development testing purposess!!!! 
-    */
-    flash_screen_graphics_test(mbi2_info_struct);
+    draw_psf_str(mbi2_info_struct, 0, 0, "======================");
+    draw_psf_str(mbi2_info_struct, 9, 0, "Hello from the kernel!");
+    draw_psf_str(mbi2_info_struct, 18, 0, "======================");
 
 }

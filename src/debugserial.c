@@ -75,7 +75,7 @@ void writestr_debug_serial(const char* str){
 }
 
 
-void writeuint_debug_serial(unsigned int uint_to_write, int base){
+void writeuint_debug_serial(uint32_t uint_to_write, int base){
     if(uint_to_write==0){
         write_debug_serial('0');
         return;

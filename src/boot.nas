@@ -34,10 +34,19 @@ multiboot_header:
 multiboot_header_end:
 
 
+section .bss
+    align 16
+    stack_bottom:
+        resb 16384
+    stack_top:
+
+
 ; The actual code to get the kernel up and running :D
 section .text
 global _start:function
 _start:
+    mov esp, stack_top ; Set ESP to the top of the stack section
+
     ; Push kernel_main args
     push ebx    ; Pointer to multiboot information structure
     push eax    ; Multiboot2 magic value

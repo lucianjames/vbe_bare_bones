@@ -25,7 +25,7 @@ struct MBI2_INFO parse_mb2i(unsigned long addr){
                 writestr_debug_serial("INFO: FOUND TAG MULTIBOOT_TAG_TYPE_MODULE\n");
                 writestr_debug_serial(" Module at 0x");
                 writeuint_debug_serial(((struct multiboot_tag_module *) tag)->mod_start, 16);
-                writeuint_debug_serial("-0x");
+                writestr_debug_serial("-0x");
                 writeuint_debug_serial(((struct multiboot_tag_module *) tag)->mod_end, 16);
                 writestr_debug_serial(". Command line ");
                 writestr_debug_serial(((struct multiboot_tag_module *) tag)->cmdline);
@@ -59,13 +59,13 @@ struct MBI2_INFO parse_mb2i(unsigned long addr){
                         mmap = (multiboot_memory_map_t*)((unsigned long)mmap + ((struct multiboot_tag_mmap*)tag)->entry_size)
                     ){
                         writestr_debug_serial("  base_addr = 0x");
-                        writeuint_debug_serial((unsigned) (mmap->addr >> 32), 16);
-                        writeuint_debug_serial((unsigned) (mmap->addr & 0xffffffff), 16);
+                        writeuint_debug_serial((uint32_t)(mmap->addr >> 32), 16); // These are broken into two writes because mmap->addr is a 64-bit uint
+                        writeuint_debug_serial((uint32_t)(mmap->addr & 0xffffffff), 16);
                         writestr_debug_serial(", length = 0x");
-                        writeuint_debug_serial((unsigned) (mmap->len >> 32), 16);
-                        writeuint_debug_serial((unsigned) (mmap->len & 0xffffffff), 16);
+                        writeuint_debug_serial((uint32_t)(mmap->len >> 32), 16);
+                        writeuint_debug_serial((uint32_t)(mmap->len & 0xffffffff), 16);
                         writestr_debug_serial(", type = 0x");
-                        writeuint_debug_serial((unsigned) mmap->type);
+                        writeuint_debug_serial((uint32_t)mmap->type, 16);
                         writestr_debug_serial("\n");
                     }
                 }
