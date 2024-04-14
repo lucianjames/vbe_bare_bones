@@ -1,23 +1,19 @@
 #include "graphics.h"
 
 
+
 /*
     Render a character to the screen at the given offset.
     zap-vga09.pdf shows the table of characters available, and their offsets (for setting char_idx)
 */
-void draw_psf_char(struct MBI2_INFO mb2is, int row_offset, int col_offset, int char_idx){
+void draw_psf_char(struct MB2TAGS mb2is, int row_offset, int col_offset, int char_idx){
     /*
         Set up the pointers required to draw a character
     */
     psf1_header* header = (psf1_header*)&_binary_zap_vga09_psf_start;
     unsigned char* psf = (unsigned char*)&_binary_zap_vga09_psf_start + 4 + (char_idx*9);
-    void* fb = (void*)(unsigned long)mb2is.framebufinfo->common.framebuffer_addr;
+    void* framebuffer = (void*)(unsigned long)mb2is.framebufinfo->common.framebuffer_addr;
 
-    /*
-        Create some very pretty colours
-    */
-    multiboot_uint32_t colour_white = 0b11111111111111111111111111111111;
-    multiboot_uint32_t colour_black = 0b00000000000000000000000000000000;
 
     /*
         Column offset changes with different BPP values
@@ -31,6 +27,12 @@ void draw_psf_char(struct MBI2_INFO mb2is, int row_offset, int col_offset, int c
             col_pixel_increment = 3;
             break;
     }
+    
+    /*
+        Create some very pretty colours
+    */
+    multiboot_uint32_t colour_white = 0b11111111111111111111111111111111 >> 32 - mb2is.framebufinfo->common.framebuffer_bpp;
+    multiboot_uint32_t colour_black = 0x0;
 
     /*
         Draw the character!
@@ -38,7 +40,7 @@ void draw_psf_char(struct MBI2_INFO mb2is, int row_offset, int col_offset, int c
     */
     for(int row=0; row<header->charsize; row++){
         for(int col=0; col<8; col++){
-            multiboot_uint32_t* pixel = fb + ((row+row_offset)*mb2is.framebufinfo->common.framebuffer_pitch) + (col+col_offset)*col_pixel_increment;
+            multiboot_uint32_t* pixel = framebuffer + ((row+row_offset)*mb2is.framebufinfo->common.framebuffer_pitch) + (col+col_offset)*col_pixel_increment;
             *pixel = (*(psf+row) << col & 0b10000000)? colour_white : colour_black;
         }
     }
@@ -48,9 +50,23 @@ void draw_psf_char(struct MBI2_INFO mb2is, int row_offset, int col_offset, int c
 /*
     Draw a string char-by-char using draw_psf_char
 */
-void draw_psf_str(struct MBI2_INFO mb2is, int row_offset, int col_offset, const char* str){
+void draw_psf_str(struct MB2TAGS mb2is, int row_offset, int col_offset, const char* str){
     for(int i=0; str[i]!=0x00; i++){
         draw_psf_char(mb2is, row_offset, col_offset+(i*9), str[i]);
+    }
+}
+
+/*
+    Draw all the characters!
+*/
+void draw_psf_debug_matrix(struct MB2TAGS mb2is, int row_offset, int col_offset){
+    unsigned char line[16];
+    unsigned char current_char = 0x00;
+    for(int i=0; i<16; i++){
+        for(int j=0; j<16; j++){
+            draw_psf_char(mb2is, row_offset+(i*10), col_offset+(j*10), current_char);
+            current_char++;
+        }
     }
 }
 
@@ -67,18 +83,18 @@ void dump_psf_info(){
     writestr_debug_serial("\n");
     psf1_header* psf = (psf1_header*)&_binary_zap_vga09_psf_start;
     if(psf->magic[0] == PSF1_MAGIC0 && psf->magic[1] == PSF1_MAGIC1){
-        writestr_debug_serial("INFO: Valid PSF1 magic\n");
+        writestr_debug_serial(" PSF1 Magic: Valid (0x36, 0x04)\n");
     }else{
         writestr_debug_serial("ERROR: PSF1 magic NOT valid\n");
     }
-    writestr_debug_serial("PSF mode: 0x");
+    writestr_debug_serial(" PSF mode: 0x");
     writeuint_debug_serial(psf->mode, 16);
-    writestr_debug_serial("\nPSF charsize: ");
+    writestr_debug_serial("\n PSF charsize: ");
     writeuint_debug_serial(psf->charsize, 10);
     writestr_debug_serial("\n");
 }
 
-void psf_test(struct MBI2_INFO mb2is){
+void psf_test(struct MB2TAGS mb2is){
     dump_psf_info();
 
     while(1){
@@ -86,13 +102,13 @@ void psf_test(struct MBI2_INFO mb2is){
     }
 }
 
-void flash_screen_graphics_test(struct MBI2_INFO mbi2_info_struct){
-    multiboot_uint32_t colour_blue = ((1 << mbi2_info_struct.framebufinfo->framebuffer_blue_mask_size) -1) << mbi2_info_struct.framebufinfo->framebuffer_blue_field_position;
-    multiboot_uint32_t colour_red = ((1 << mbi2_info_struct.framebufinfo->framebuffer_red_mask_size) -1) << mbi2_info_struct.framebufinfo->framebuffer_red_field_position;
-    void* fb = (void*)(unsigned long)mbi2_info_struct.framebufinfo->common.framebuffer_addr;
-    size_t fb_size = mbi2_info_struct.framebufinfo->common.framebuffer_height * mbi2_info_struct.framebufinfo->common.framebuffer_pitch;
+void flash_screen_graphics_test(struct MB2TAGS mb2is){
+    multiboot_uint32_t colour_blue = ((1 << mb2is.framebufinfo->framebuffer_blue_mask_size) -1) << mb2is.framebufinfo->framebuffer_blue_field_position;
+    multiboot_uint32_t colour_red = ((1 << mb2is.framebufinfo->framebuffer_red_mask_size) -1) << mb2is.framebufinfo->framebuffer_red_field_position;
+    void* fb = (void*)(unsigned long)mb2is.framebufinfo->common.framebuffer_addr;
+    size_t fb_size = mb2is.framebufinfo->common.framebuffer_height * mb2is.framebufinfo->common.framebuffer_pitch;
     void* fbc_max = fb+fb_size;
-    switch(mbi2_info_struct.framebufinfo->common.framebuffer_bpp){
+    switch(mb2is.framebufinfo->common.framebuffer_bpp){
         case(32):
         {
             #define FBC_INCREMENT 4

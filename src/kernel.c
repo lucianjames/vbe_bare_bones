@@ -22,6 +22,7 @@
 #include "multiboot2-mbiparse.h" // For parsing multiboot2 info struct
 #include "graphics.h" // Some crappy graphics testing
 
+
 /*
     Macros
 */
@@ -29,12 +30,11 @@
 #define ASM_INFINITE_LOOP asm volatile ("1: jmp 1b");   // Hacky method of creating a ""breakpoint"" to look at registers etc
 
 
-
 /*
     Kernel main.
-    To pass the MBH2_MAGIC and MBH2_INFO_ADDR args, simply push ebx then eax (as long as the bootloader is behaving)
+    To pass the mb_magic and mb2_info_struct_addr args, simply push ebx then eax (as long as the bootloader is behaving)
 */
-void kernel_main(unsigned long MBH2_MAGIC, unsigned long MBH2_INFO_ADDR){
+void kernel_main(unsigned long mb_magic, unsigned long mb2_info_struct_addr){
     /*
         Set up debugging serial communications
     */
@@ -46,8 +46,8 @@ void kernel_main(unsigned long MBH2_MAGIC, unsigned long MBH2_INFO_ADDR){
     /*
         Verify we have been booted by a multiboot2 compliant bootloader
     */
-    if(MBH2_MAGIC != MBH2_VALID_MAGIC){
-        writestr_debug_serial("ERR: MBH2_MAGIC is NOT valid\n");
+    if(mb_magic != MBH2_VALID_MAGIC){
+        writestr_debug_serial("ERR: mb_magic is NOT valid\n");
     }else{
         writestr_debug_serial("INFO: Valid multiboot2 magic\n");
     }
@@ -56,7 +56,7 @@ void kernel_main(unsigned long MBH2_MAGIC, unsigned long MBH2_INFO_ADDR){
     /*
         Parse mb2 info
     */
-    struct MBI2_INFO mbi2_info_struct = parse_mb2i(MBH2_INFO_ADDR);
+    struct MB2TAGS mb2_info = get_mb2i_tags(mb2_info_struct_addr);
 
 
     /*
@@ -64,12 +64,56 @@ void kernel_main(unsigned long MBH2_MAGIC, unsigned long MBH2_INFO_ADDR){
     */
     dump_psf_info();
 
+
+    /*
+        Init "kterm" to allow easy writing of debug info to the screen
+    */
+    kterm_init(mb2_info);
+    kterm_write_newline("INFO: kterm initialised");
+
+    
+    /*
+        Display mmap info - temporary testing
+    */
+    struct multiboot_tag* tag = (struct multiboot_tag*)(mb2_info_struct_addr+8);
+    while(tag->type != MULTIBOOT_TAG_TYPE_MMAP && tag->type != MULTIBOOT_TAG_TYPE_END){
+        tag = (struct multiboot_tag *)((multiboot_uint8_t *)tag + ((tag->size + 7) & ~7));
+    }
+    if(tag->type == MULTIBOOT_TAG_TYPE_MMAP){
+        multiboot_memory_map_t* mmap;
+        kterm_printf_newline("MMAP information:");
+        for(mmap = ((struct multiboot_tag_mmap*)tag)->entries;
+            (multiboot_uint8_t*)mmap < (multiboot_uint8_t*)tag + tag->size;
+            mmap = (multiboot_memory_map_t*)((unsigned long)mmap + ((struct multiboot_tag_mmap*)tag)->entry_size)
+        ){
+            kterm_printf_newline("    base_addr = 0x%x%x, length = 0x%x%x, type = 0x%x", 
+                (uint32_t)(mmap->addr >> 32), 
+                (uint32_t)(mmap->addr & 0xffffffff),
+                (uint32_t)(mmap->len >> 32), 
+                (uint32_t)(mmap->len & 0xffffffff),
+                (uint32_t)mmap->type
+                );
+            
+        }
+    }else{
+        writestr_debug_serial("ERR: Couldnt find MMAP tag! Something is very wrong!");
+        kterm_write_newline("ERR: Couldnt find MMAP tag! Something is very wrong!");
+        return;
+    }
+
+
     /*
         Boot process "done", lets say hello!
     */
     writestr_debug_serial("\n======================\nHello from the kernel!\n======================\n\n");
-    draw_psf_str(mbi2_info_struct, 0, 0, "======================");
-    draw_psf_str(mbi2_info_struct, 9, 0, "Hello from the kernel!");
-    draw_psf_str(mbi2_info_struct, 18, 0, "======================");
+    kterm_write_newline("");
+    kterm_write_newline("======================");
+    kterm_printf_newline("Hello from the kernel!");
+    kterm_write_newline("======================");
 
+    /*
+        PSF debug: draw all characters
+    */
+    draw_psf_debug_matrix(mb2_info, 256, 256);
+    
 }

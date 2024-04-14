@@ -2,11 +2,10 @@
 
 
 
-struct MBI2_INFO parse_mb2i(unsigned long addr){
-    struct MBI2_INFO mbi2_info_res;
+struct MB2TAGS get_mb2i_tags(unsigned long info_struct_addr){
+    struct MB2TAGS mb2_tag_info_res;
     writestr_debug_serial("INFO: Attempting to parse multiboot tags\n");
-    // Assume addr already validated
-    struct multiboot_tag* tag = (struct multiboot_tag*)(addr+8); // Not sure what the significance of +8 is rn
+    struct multiboot_tag* tag = (struct multiboot_tag*)(info_struct_addr+8); // Not sure what the significance of +8 is rn
     while(tag->type != MULTIBOOT_TAG_TYPE_END){
         switch (tag->type){
             case MULTIBOOT_TAG_TYPE_CMDLINE:
@@ -101,7 +100,7 @@ struct MBI2_INFO parse_mb2i(unsigned long addr){
                     writestr_debug_serial(" Framebuffer pitch: ");
                     writeuint_debug_serial(tagfb->common.framebuffer_pitch, 10);
                     writestr_debug_serial("\n");
-                    mbi2_info_res.framebufinfo = (struct multiboot_tag_framebuffer*)tag;
+                    mb2_tag_info_res.framebufinfo = (struct multiboot_tag_framebuffer*)tag;
                     break;
                 }
             default:
@@ -111,5 +110,5 @@ struct MBI2_INFO parse_mb2i(unsigned long addr){
         tag = (struct multiboot_tag *)((multiboot_uint8_t *)tag + ((tag->size + 7) & ~7));
     }
 
-    return mbi2_info_res;
+    return mb2_tag_info_res;
 }

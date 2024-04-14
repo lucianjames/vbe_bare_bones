@@ -76,12 +76,13 @@ void writestr_debug_serial(const char* str){
 
 
 void writeuint_debug_serial(uint32_t uint_to_write, int base){
-    if(uint_to_write==0){
+    if(uint_to_write == 0){
         write_debug_serial('0');
         return;
     }
 
-    char str[11];
+    char str[33];
+
 
     int str_idx = 0;
     while(uint_to_write != 0){
@@ -89,7 +90,6 @@ void writeuint_debug_serial(uint32_t uint_to_write, int base){
         str[str_idx++] = (r>9)? (r-10)+'a' : r + '0';
         uint_to_write = uint_to_write / base;
     }
-
 
     for(int i=str_idx-1; i>=0; i--){
         write_debug_serial(str[i]);

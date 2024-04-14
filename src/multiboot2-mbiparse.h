@@ -4,7 +4,7 @@
 #include "multiboot2.h"
 #include "debugserial.h"
 
-struct MBI2_INFO{
+struct MB2TAGS {
     struct multiboot_tag_framebuffer* framebufinfo
     // More will go here when needed!
 };
@@ -13,6 +13,6 @@ struct MBI2_INFO{
   We assume that init_debug_serial() has already been called,
   allowing us to send debug messages using the serial debug functions
 */
-struct MBI2_INFO parse_mb2i(unsigned long addr);
+struct MB2TAGS get_mb2i_tags(unsigned long addr);
 
 #endif
