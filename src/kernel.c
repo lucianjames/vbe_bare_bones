@@ -21,7 +21,7 @@
 #include "debugserial.h" // Allows IO over COM1 for debugging inside QEMU
 #include "multiboot2-mbiparse.h" // For parsing multiboot2 info struct
 #include "graphics.h" // Some crappy graphics testing
-
+#include "kterminal.h"
 
 /*
     Macros

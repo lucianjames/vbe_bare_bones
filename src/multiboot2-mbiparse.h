@@ -5,7 +5,7 @@
 #include "debugserial.h"
 
 struct MB2TAGS {
-    struct multiboot_tag_framebuffer* framebufinfo
+    struct multiboot_tag_framebuffer* framebufinfo;
     // More will go here when needed!
 };
 

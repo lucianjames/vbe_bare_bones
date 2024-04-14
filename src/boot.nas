@@ -37,7 +37,7 @@ multiboot_header_end:
 section .bss
     align 16
     stack_bottom:
-        resb 65536
+        resb 16384
     stack_top:
 
 

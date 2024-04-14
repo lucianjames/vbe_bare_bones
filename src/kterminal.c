@@ -1,5 +1,9 @@
 #include "kterminal.h"
 
+int G_KTERM_CROW = 0;
+int G_KTERM_MAXROW = 0;
+int G_KTERM_MAXCOL = 0;
+struct MB2TAGS G_KTERM_MB2_IS;
 
 void kterm_init(struct MB2TAGS mb2is){
     G_KTERM_MB2_IS = mb2is;
@@ -95,9 +99,9 @@ void kterm_printf_newline(const char* fmt, ...){
 
 
 void kterm_clear(){
-    void* framebuffer = (void*)G_KTERM_MB2_IS.framebufinfo->common.framebuffer_addr;
+    char* framebuffer = (char*)(unsigned long)G_KTERM_MB2_IS.framebufinfo->common.framebuffer_addr;
     size_t fb_size = G_KTERM_MB2_IS.framebufinfo->common.framebuffer_height * G_KTERM_MB2_IS.framebufinfo->common.framebuffer_pitch;
-    void* fb_max = framebuffer+fb_size;
+    char* fb_max = framebuffer+fb_size;
     multiboot_uint32_t colour_black = 0x0;
 
     /*

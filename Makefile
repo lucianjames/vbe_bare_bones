@@ -59,7 +59,7 @@ all: iso
 
 # Build the ISO then test it in a QEMU VM
 runvm: iso
-	qemu-system-i386 -boot d -cdrom $(ISONAME) -serial file:serial.log -monitor stdio -vga std
+	qemu-system-i386 -boot d -cdrom $(ISONAME) -serial file:serial.log -monitor stdio -vga std -m 512
 
 runvmgdb: iso
 	qemu-system-i386 -s -S -boot d -cdrom $(ISONAME) -serial file:serial.log -monitor stdio -vga std -d cpu_reset
