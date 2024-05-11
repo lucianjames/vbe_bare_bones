@@ -24,6 +24,13 @@
 #include "kterminal.h"
 
 /*
+    Symbols provided by the boot NASM code
+*/
+extern char stack_bottom[];
+extern char stack_top[];
+
+
+/*
     Macros
 */
 #define MBH2_VALID_MAGIC 0x36d76289
@@ -35,6 +42,7 @@
     To pass the mb_magic and mb2_info_struct_addr args, simply push ebx then eax (as long as the bootloader is behaving)
 */
 void kernel_main(unsigned long mb_magic, unsigned long mb2_info_struct_addr){
+
     /*
         Set up debugging serial communications
     */
@@ -71,7 +79,31 @@ void kernel_main(unsigned long mb_magic, unsigned long mb2_info_struct_addr){
     kterm_init(mb2_info);
     kterm_write_newline("INFO: kterm initialised");
 
-    
+
+    /*
+        Boot process "done", lets say hello!
+    */
+    writestr_debug_serial("\n======================\nHello from the kernel!\n======================\n\n");
+    kterm_write_newline("======================");
+    kterm_write_newline("Hello from the kernel!");
+    kterm_write_newline("======================");
+
+
+    /*
+        ======= MEM DEBUGGING AND SHIT :)
+    */
+
+
+    /*
+        Print information about stack memory
+    */
+    kterm_printf_newline("stack bottom = 0x%x", stack_bottom);
+    kterm_printf_newline("stack top = 0x%x", stack_top);
+    uint32_t stack_pointer = 0;
+    asm volatile("movl %%esp,%0" : "=r"(stack_pointer));
+    kterm_printf_newline("stack pointer = 0x%x", stack_pointer);
+
+
     /*
         Display mmap info - temporary testing
     */
@@ -101,19 +133,4 @@ void kernel_main(unsigned long mb_magic, unsigned long mb2_info_struct_addr){
         return;
     }
 
-
-    /*
-        Boot process "done", lets say hello!
-    */
-    writestr_debug_serial("\n======================\nHello from the kernel!\n======================\n\n");
-    kterm_write_newline("");
-    kterm_write_newline("======================");
-    kterm_printf_newline("Hello from the kernel!");
-    kterm_write_newline("======================");
-
-    /*
-        PSF debug: draw all characters
-    */
-    draw_psf_debug_matrix(mb2_info, 256, 256);
-    
 }

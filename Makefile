@@ -1,3 +1,5 @@
+# export PATH="$HOME/opt/cross/bin:$PATH"
+
 CC = i686-elf-gcc
 CFLAGS = -std=gnu99 -ffreestanding -Wall -Wextra -Wpedantic -O3
 CFLAGS_DEBUG = -std=gnu99 -ffreestanding -Wall -Wextra -Wpedantic -g
