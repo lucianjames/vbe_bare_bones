@@ -133,4 +133,8 @@ void kernel_main(unsigned long mb_magic, unsigned long mb2_info_struct_addr){
         return;
     }
 
+
+
+    draw_psf_debug_matrix(mb2_info, 200, 0);
+
 }
