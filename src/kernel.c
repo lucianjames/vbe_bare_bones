@@ -87,6 +87,8 @@ void kernel_main(unsigned long mb_magic, unsigned long mb2_info_struct_addr){
     kterm_write_newline("======================");
     kterm_write_newline("Hello from the kernel!");
     kterm_write_newline("======================");
+    
+    draw_psf_debug_matrix(mb2_info, 200, 0);
 
 
     /*
@@ -132,9 +134,5 @@ void kernel_main(unsigned long mb_magic, unsigned long mb2_info_struct_addr){
         kterm_write_newline("ERR: Couldnt find MMAP tag! Something is very wrong!");
         return;
     }
-
-
-
-    draw_psf_debug_matrix(mb2_info, 200, 0);
 
 }
